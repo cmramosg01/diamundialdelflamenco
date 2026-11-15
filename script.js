@@ -22,7 +22,7 @@ function warning(){const el=document.getElementById('notice');el.hidden=false;el
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));return true;}catch(e){storageAvailable=false;warning();return false;}}
 function focusTitle(){const el=app.querySelector('h1,h2');el.tabIndex=-1;el.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
 function render(){
- if(state?.finished){if(state.resultView==='farewell')farewell();else result();return;}
+ if(state?.finished){result();return;}
  if(state){quiz();return;}
  app.innerHTML=`<figure class="hero"><img src="./assets/ilustracion.webp" width="1000" height="365" alt="Ilustración del cartel: Camarón y La Chispa en tonos carmín y tinta"></figure><section class="intro"><h1><span>La Chispa de</span>Camarón</h1><p class="subtitle">Juega y llévate una sorpresa</p><div class="ornament" aria-hidden="true">❦</div><p>La Chispa de Camarón era Dolores Montoya, de La Línea de la Concepción, compañera de vida de Camarón.</p><p>Hoy te proponemos un pequeño juego con sabor flamenco.</p><p class="invitation">¡Pon a prueba tu chispa flamenca!</p><p class="conditions">7 preguntas · 1 premio por persona · Hasta agotar existencias</p><button id="start" ${storageAvailable?'':'disabled'}>¡QUIERO JUGAR!</button></section>`;
  document.getElementById('start').onclick=()=>{state={version:1,current:0,answers:Array(7).fill(null),order:QUESTIONS.map(shuffle),finished:false};if(save()){render();focusTitle();}};
@@ -35,19 +35,6 @@ function quiz(){
  app.querySelector('form').onsubmit=e=>{e.preventDefault();if(!storageAvailable||state.answers[i]===null)return;if(i===6){if(state.answers.some(a=>a===null))return;state.finished=true;}else state.current++;if(save()){render();focusTitle();}};
 }
 function result(){const n=score(state.answers),won=n>=5;
- app.innerHTML=`<section class="result"><p class="brand">La Chispa de Camarón</p><div class="bloom" aria-hidden="true">❦</div><h2>${won?'¡TIENES DUENDE!':'¡QUE NO SE PIERDA EL COMPÁS!'}</h2><div class="${won?'voucher':''}"><p class="score">${n}<small> / 7</small></p><p class="score-label">${won?`HAS ACERTADO ${n} DE 7 PREGUNTAS`:`Has acertado ${n} de 7 preguntas.`}</p>${won?'<p class="prize">¡Enhorabuena! Has ganado una sorpresa.</p><p>Haz una captura de esta pantalla y muéstrala para elegir un regalo del cesto.</p><p class="conditions">Un regalo por persona · Hasta agotar existencias</p>':'<p>Hoy no te llevas un regalo, pero te llevas un poquito más de flamenco. ¡Gracias por participar!</p>'}</div><div class="ornament" aria-hidden="true">❦</div><figure class="photo"><img src="./assets/camaron-y-la-chispa.jpg" width="504" height="600" alt="Fotografía de Camarón junto a Dolores Montoya, La Chispa"><figcaption>Camarón y La Chispa, año 1976, en fotografía de Pepe Lamarca</figcaption></figure><p><button type="button" id="finish">TERMINAR</button></p></section>`;
- document.getElementById('finish').onclick=()=>showResultView('farewell');
-}
-// Esta navegación solo cambia la vista; la partida finalizada permanece intacta.
-function showResultView(view){
- if(!state?.finished)return;
- state.resultView=view;
- save();
- render();
- focusTitle();
-}
-function farewell(){
- app.innerHTML=`<section class="result"><p class="brand">La Chispa de Camarón</p><div class="bloom" aria-hidden="true">❦</div><h2>¡Gracias por participar!</h2><p class="subtitle">¡Que no se apague nunca la chispa del flamenco!</p><div class="ornament" aria-hidden="true">❦</div><button type="button" class="secondary" id="view-result">Ver mi resultado</button></section>`;
- document.getElementById('view-result').onclick=()=>showResultView('result');
+ app.innerHTML=`<section class="result"><p class="brand">La Chispa de Camarón</p><div class="bloom" aria-hidden="true">❦</div><h2>${won?'¡TIENES DUENDE!':'¡QUE NO SE PIERDA EL COMPÁS!'}</h2><div class="${won?'voucher':''}"><p class="score">${n}<small> / 7</small></p><p class="score-label">${won?`HAS ACERTADO ${n} DE 7 PREGUNTAS`:`Has acertado ${n} de 7 preguntas.`}</p>${won?'<p class="prize">¡Enhorabuena! Has ganado una sorpresa.</p><p>Haz una captura de esta pantalla y muéstrala para elegir un regalo sorpresa del cesto.</p><p class="conditions">Un regalo por persona · Hasta agotar existencias</p>':'<p>Hoy no te llevas un regalo, pero te llevas un poquito más de flamenco. ¡Gracias por participar!</p>'}</div><div class="ornament" aria-hidden="true">❦</div><figure class="photo"><img src="./assets/camaron-y-la-chispa.jpg" width="504" height="600" alt="Fotografía de Camarón junto a Dolores Montoya, La Chispa"><figcaption>Camarón y La Chispa, año 1976, en fotografía de Pepe Lamarca</figcaption></figure><p class="hint">¡Gracias por participar! Que no se apague nunca la chispa del flamenco.</p></section>`;
 }
 if(storageAvailable){render();}else{app.innerHTML='<section class="intro"><h1><span>La Chispa de</span>Camarón</h1></section>';warning();}
